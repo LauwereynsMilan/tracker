@@ -4,22 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Slaaptracker App</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <h1>Slaaptracker</h1>
 
-  <label for="bedTime">Slaaptijd:</label>
-  <input type="time" id="bedTime">
+  <div class="form-container">
+    <label for="bedTime">Slaaptijd:</label>
+    <input type="time" id="bedTime">
 
-  <label for="wakeTime">Wakertijd:</label>
-  <input type="time" id="wakeTime">
+    <label for="wakeTime">Wakertijd:</label>
+    <input type="time" id="wakeTime">
 
-  <button onclick="saveSleep()">Opslaan</button>
+    <button onclick="saveSleep()">Opslaan</button>
+  </div>
 
   <h2>Resultaten</h2>
 
-  <!-- 🔽 NIEUW: datumfilter dropdown -->
   <label for="dateSelector">Filter op datum:</label>
   <select id="dateSelector" onchange="renderSleepData()">
     <option value="">-- Alle data --</option>

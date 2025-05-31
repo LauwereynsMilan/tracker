@@ -13,6 +13,7 @@ function saveSleep() {
   sleepData.push({ bedTime, wakeTime, date });
   localStorage.setItem("sleepData", JSON.stringify(sleepData));
 
+  updateDateSelector();
   renderSleepData();
 }
 
@@ -31,7 +32,23 @@ function calculateSleepHours(start, end) {
   }
 
   const diffMs = endDate - startDate;
-  return diffMs / (1000 * 60 * 60); 
+  return diffMs / (1000 * 60 * 60);
+}
+
+// 🔽 NIEUW: update dropdown met unieke datums
+function updateDateSelector() {
+  const sleepData = JSON.parse(localStorage.getItem("sleepData")) || [];
+  const uniqueDates = [...new Set(sleepData.map(e => e.date))];
+
+  const selector = document.getElementById("dateSelector");
+  selector.innerHTML = '<option value="">-- Alle data --</option>';
+
+  uniqueDates.forEach(date => {
+    const option = document.createElement("option");
+    option.value = date;
+    option.textContent = date;
+    selector.appendChild(option);
+  });
 }
 
 function renderSleepData() {
@@ -39,13 +56,18 @@ function renderSleepData() {
   sleepLog.innerHTML = "";
 
   const sleepData = JSON.parse(localStorage.getItem("sleepData")) || [];
+  const selectedDate = document.getElementById("dateSelector").value;
 
-  if (sleepData.length === 0) {
+  const filteredData = selectedDate
+    ? sleepData.filter(e => e.date === selectedDate)
+    : sleepData;
+
+  if (filteredData.length === 0) {
     sleepLog.innerHTML = "<p>Geen slaapgegevens gevonden.</p>";
     return;
   }
 
-  sleepData.forEach(entry => {
+  filteredData.forEach(entry => {
     const hours = calculateSleepHours(entry.bedTime, entry.wakeTime);
     const emoji = hours >= 8 ? "😄" : "😴";
     const message = hours >= 8 ? "Goed geslapen!" : "Je hebt wat meer slaap nodig";
@@ -62,4 +84,7 @@ function renderSleepData() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", renderSleepData);
+document.addEventListener("DOMContentLoaded", () => {
+  updateDateSelector();
+  renderSleepData();
+});

@@ -15,9 +15,16 @@
   <label for="wakeTime">Wakertijd:</label>
   <input type="time" id="wakeTime">
 
-  <button>Opslaan</button>
+  <button onclick="saveSleep()">Opslaan</button>
 
   <h2>Resultaten</h2>
+
+  <!-- 🔽 NIEUW: datumfilter dropdown -->
+  <label for="dateSelector">Filter op datum:</label>
+  <select id="dateSelector" onchange="renderSleepData()">
+    <option value="">-- Alle data --</option>
+  </select>
+
   <div id="sleepLog"></div>
 
   <script src="script.js"></script>

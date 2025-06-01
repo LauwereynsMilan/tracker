@@ -108,3 +108,12 @@ document.addEventListener("DOMContentLoaded", () => {
   updateDateSelector();
   renderSleepData();
 });
+
+document.getElementById("resetButton").addEventListener("click", () => {
+  const confirmReset = confirm("Weet je zeker dat je alle slaapdata wilt verwijderen?");
+  if (confirmReset) {
+    localStorage.removeItem("sleepData");
+    updateDateSelector();
+    renderSleepData();
+  }
+});

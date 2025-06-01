@@ -1,8 +1,8 @@
 function saveSleep() {
-  const bedTime = document.getElementById("bedTime").value;
-  const wakeTime = document.getElementById("wakeTime").value;
+  const bedTime = document.getElementById("bedTime");
+  const wakeTime = document.getElementById("wakeTime");
 
-  if (!bedTime || !wakeTime) {
+  if (!bedTime.value || !wakeTime.value) {
     alert("Vul beide tijden in.");
     return;
   }
@@ -10,103 +10,87 @@ function saveSleep() {
   const date = new Date().toLocaleDateString();
   const sleepData = JSON.parse(localStorage.getItem("sleepData")) || [];
 
-  sleepData.push({ bedTime, wakeTime, date });
+  sleepData.push({ bedTime: bedTime.value, wakeTime: wakeTime.value, date });
   localStorage.setItem("sleepData", JSON.stringify(sleepData));
+
+  bedTime.value = "";
+  wakeTime.value = "";
+  showMessage("Slaapgegevens opgeslagen!");
 
   updateDateSelector();
   renderSleepData();
 }
 
-function calculateSleepHours(start, end) {
-  const [startH, startM] = start.split(":").map(Number);
-  const [endH, endM] = end.split(":").map(Number);
+function calculateSleepHours(bedTime, wakeTime) {
+  const [bedHour, bedMin] = bedTime.split(":").map(Number);
+  const [wakeHour, wakeMin] = wakeTime.split(":").map(Number);
 
-  const startDate = new Date();
-  startDate.setHours(startH, startM);
+  let bed = new Date();
+  bed.setHours(bedHour, bedMin, 0);
 
-  const endDate = new Date();
-  endDate.setHours(endH, endM);
+  let wake = new Date();
+  wake.setHours(wakeHour, wakeMin, 0);
+  if (wake <= bed) wake.setDate(wake.getDate() + 1);
 
-  if (endDate <= startDate) {
-    endDate.setDate(endDate.getDate() + 1);
-  }
-
-  const diffMs = endDate - startDate;
-  return diffMs / (1000 * 60 * 60);
-}
-
-function updateDateSelector() {
-  const sleepData = JSON.parse(localStorage.getItem("sleepData")) || [];
-  const uniqueDates = [...new Set(sleepData.map(e => e.date))];
-
-  const selector = document.getElementById("dateSelector");
-  selector.innerHTML = '<option value="">-- Alle data --</option>';
-
-  uniqueDates.forEach(date => {
-    const option = document.createElement("option");
-    option.value = date;
-    option.textContent = date;
-    selector.appendChild(option);
-  });
+  const diff = (wake - bed) / (1000 * 60 * 60);
+  return Math.round(diff * 10) / 10;
 }
 
 function renderSleepData() {
   const sleepLog = document.getElementById("sleepLog");
-  sleepLog.innerHTML = "";
-
   const sleepData = JSON.parse(localStorage.getItem("sleepData")) || [];
   const selectedDate = document.getElementById("dateSelector").value;
 
-  const filteredData = selectedDate
-    ? sleepData.filter(e => e.date === selectedDate)
-    : sleepData;
+  sleepLog.innerHTML = "";
 
-  if (filteredData.length === 0) {
-    sleepLog.innerHTML = "<p>Geen slaapgegevens gevonden.</p>";
-    return;
-  }
+  sleepData
+    .filter(entry => !selectedDate || entry.date === selectedDate)
+    .forEach(entry => {
+      const hours = calculateSleepHours(entry.bedTime, entry.wakeTime);
+      const emoji = hours >= 8 ? "😄" : "😴";
+      sleepLog.innerHTML += `
+        <div>
+          <strong>${entry.date}</strong><br>
+          ${entry.bedTime} - ${entry.wakeTime} = ${hours} uur ${emoji}
+          <hr>
+        </div>`;
+    });
+}
 
-  filteredData.forEach(entry => {
-    const hours = calculateSleepHours(entry.bedTime, entry.wakeTime);
-    const emoji = hours >= 8 ? "😄" : "😴";
-    const message = hours >= 8 ? "Goed geslapen!" : "Je hebt wat meer slaap nodig";
-
-    const div = document.createElement("div");
-    div.innerHTML = `
-      <p><strong>${entry.date}</strong></p>
-      <p>Van ${entry.bedTime} tot ${entry.wakeTime}</p>
-      <p>${hours.toFixed(1)} uur slaap ${emoji}</p>
-      <p><em>${message}</em></p>
-      <hr />
-    `;
-    sleepLog.appendChild(div);
+function updateDateSelector() {
+  const sleepData = JSON.parse(localStorage.getItem("sleepData")) || [];
+  const dates = [...new Set(sleepData.map(entry => entry.date))];
+  const selector = document.getElementById("dateSelector");
+  const currentValue = selector.value;
+  selector.innerHTML = '<option value="">-- Alle data --</option>';
+  dates.forEach(date => {
+    const option = document.createElement("option");
+    option.value = date;
+    option.textContent = date;
+    if (date === currentValue) option.selected = true;
+    selector.appendChild(option);
   });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  updateDateSelector();
-  renderSleepData();
-});
+function showMessage(text) {
+  const msg = document.getElementById("message");
+  msg.textContent = text;
+  msg.classList.remove("hidden");
 
-const themeButton = document.getElementById("toggleTheme");
-
-function setTheme(mode) {
-  document.body.classList.toggle("dark", mode === "dark");
-  themeButton.textContent = mode === "dark" ? "☀️ Dagmodus" : "🌙 Donkere modus";
-  localStorage.setItem("theme", mode);
+  setTimeout(() => {
+    msg.classList.add("hidden");
+  }, 3000);
 }
 
-themeButton.addEventListener("click", () => {
-  const isDark = document.body.classList.contains("dark");
-  setTheme(isDark ? "light" : "dark");
-});
+function setTheme(theme) {
+  document.body.classList.toggle("dark", theme === "dark");
+  localStorage.setItem("theme", theme);
+  document.getElementById("toggleTheme").textContent = theme === "dark" ? "☀️ Lichte modus" : "🌙 Donkere modus";
+}
 
-document.addEventListener("DOMContentLoaded", () => {
-  const savedTheme = localStorage.getItem("theme") || "light";
-  setTheme(savedTheme);
-
-  updateDateSelector();
-  renderSleepData();
+document.getElementById("toggleTheme").addEventListener("click", () => {
+  const currentTheme = document.body.classList.contains("dark") ? "light" : "dark";
+  setTheme(currentTheme);
 });
 
 document.getElementById("resetButton").addEventListener("click", () => {
@@ -116,4 +100,14 @@ document.getElementById("resetButton").addEventListener("click", () => {
     updateDateSelector();
     renderSleepData();
   }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const savedTheme = localStorage.getItem("theme") || "light";
+  setTheme(savedTheme);
+
+  updateDateSelector();
+  renderSleepData();
+
+  document.getElementById("bedTime").focus();
 });

@@ -1,14 +1,43 @@
+:root {
+  --bg-color: #f9f9f9;
+  --text-color: #333;
+  --card-bg: #fff;
+  --button-bg: #4caf50;
+  --button-hover: #45a049;
+}
+
+body.dark {
+  --bg-color: #121212;
+  --text-color: #f0f0f0;
+  --card-bg: #1e1e1e;
+  --button-bg: #2196f3;
+  --button-hover: #1976d2;
+}
+
 /* Algemene styling */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 2rem;
-  background-color: #f9f9f9;
-  color: #333;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
 }
 
 h1, h2 {
   text-align: center;
+}
+
+#toggleTheme {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 0.5rem 1rem;
+  border: none;
+  background-color: var(--button-bg);
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
 .form-container {
@@ -24,10 +53,12 @@ input, select, button {
   font-size: 1rem;
   border-radius: 6px;
   border: 1px solid #ccc;
+  background-color: var(--card-bg);
+  color: var(--text-color);
 }
 
 button {
-  background-color: #4caf50;
+  background-color: var(--button-bg);
   color: white;
   border: none;
   cursor: pointer;
@@ -35,13 +66,13 @@ button {
 }
 
 button:hover {
-  background-color: #45a049;
+  background-color: var(--button-hover);
 }
 
 #sleepLog {
   max-width: 600px;
   margin: 2rem auto;
-  background-color: white;
+  background-color: var(--card-bg);
   padding: 1rem;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -53,5 +84,5 @@ button:hover {
 
 hr {
   border: none;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #ccc;
 }

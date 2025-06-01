@@ -35,7 +35,6 @@ function calculateSleepHours(start, end) {
   return diffMs / (1000 * 60 * 60);
 }
 
-// 🔽 NIEUW: update dropdown met unieke datums
 function updateDateSelector() {
   const sleepData = JSON.parse(localStorage.getItem("sleepData")) || [];
   const uniqueDates = [...new Set(sleepData.map(e => e.date))];
@@ -85,6 +84,27 @@ function renderSleepData() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  updateDateSelector();
+  renderSleepData();
+});
+
+const themeButton = document.getElementById("toggleTheme");
+
+function setTheme(mode) {
+  document.body.classList.toggle("dark", mode === "dark");
+  themeButton.textContent = mode === "dark" ? "☀️ Dagmodus" : "🌙 Donkere modus";
+  localStorage.setItem("theme", mode);
+}
+
+themeButton.addEventListener("click", () => {
+  const isDark = document.body.classList.contains("dark");
+  setTheme(isDark ? "light" : "dark");
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const savedTheme = localStorage.getItem("theme") || "light";
+  setTheme(savedTheme);
+
   updateDateSelector();
   renderSleepData();
 });
